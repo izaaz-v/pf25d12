@@ -8,7 +8,7 @@ public class GameMain {
     /** The game board */
     private Board board;
     /** The current state of the game (of enum State) */
-    private State currentState;
+    private enumState currentState;
     /** The current player (of enum Seed) */
     private Seed  currentPlayer;
 
@@ -30,16 +30,16 @@ public class GameMain {
             // Refresh the display
             board.paint();
             // Print message if game over
-            if (currentState == State.CROSS_WON) {
+            if (currentState == enumState.CROSS_WON) {
                 System.out.println("'X' won!\nBye!");
-            } else if (currentState == State.NOUGHT_WON) {
+            } else if (currentState == enumState.NOUGHT_WON) {
                 System.out.println("'O' won!\nBye!");
-            } else if (currentState == State.DRAW) {
+            } else if (currentState == enumState.DRAW) {
                 System.out.println("It's Draw!\nBye!");
             }
             // Switch currentPlayer
             currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-        } while (currentState == State.PLAYING);  // repeat until game over
+        } while (currentState == enumState.PLAYING);  // repeat until game over
     }
 
     /** Perform one-time initialization tasks */
@@ -51,7 +51,7 @@ public class GameMain {
     public void newGame() {
         board.newGame();  // clear the board contents
         currentPlayer = Seed.CROSS;   // CROSS plays first
-        currentState = State.PLAYING; // ready to play
+        currentState = enumState.PLAYING; // ready to play
     }
 
     /** The currentPlayer makes one move.
