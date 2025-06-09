@@ -1,82 +1,174 @@
 import java.util.Scanner;
 /**
- * The main class for the Tic-Tac-Toe (Console-OO, non-graphics version)
- * It acts as the overall controller of the game.
+ * Tic-Tac-Toe: Two-player, console-based, non-graphics, non-OO version.
+ * All variables/methods are declared as static (i.e., class)
+ *  in this non-OO version.
  */
 public class GameMain {
-    // Define properties
-    /** The game board */
-    private Board board;
-    /** The current state of the game (of enum State) */
-    private State currentState;
-    /** The current player (of enum Seed) */
-    private Seed  currentPlayer;
+    // Define named constants for:
+    //  1. Player: using CROSS and NOUGHT
+    //  2. Cell contents: using CROSS, NOUGHT and NO_SEED
+    public static final int CROSS   = 0;
+    public static final int NOUGHT  = 1;
+    public static final int NO_SEED = 2;
 
-    private static Scanner in = new Scanner(System.in);
+    // The game board
+    public static final int ROWS = 3, COLS = 3;  // number of rows/columns
+    public static int[][] board = new int[ROWS][COLS]; // EMPTY, CROSS, NOUGHT
 
-    /** Constructor to setup the game */
-    public GameMain() {
-        // Perform one-time initialization tasks
-        initGame();
+    // The current player
+    public static int currentPlayer;  // CROSS, NOUGHT
 
-        // Reset the board, currentStatus and currentPlayer
-        newGame();
+    // Define named constants to represent the various states of the game
+    public static final int PLAYING    = 0;
+    public static final int DRAW       = 1;
+    public static final int CROSS_WON  = 2;
+    public static final int NOUGHT_WON = 3;
+    // The current state of the game
+    public static int currentState;
 
-        // Play the game once
+    public static Scanner in = new Scanner(System.in); // the input Scanner
+
+    /** The entry main method (the program starts here) */
+    public static void main(String[] args) {
+        // in main()
         do {
-            // The currentPlayer makes a move.
-            // Update cells[][] and currentState
-            stepGame();
-            // Refresh the display
-            board.paint();
-            // Print message if game over
-            if (currentState == State.CROSS_WON) {
-                System.out.println("'X' won!\nBye!");
-            } else if (currentState == State.NOUGHT_WON) {
-                System.out.println("'O' won!\nBye!");
-            } else if (currentState == State.DRAW) {
-                System.out.println("It's Draw!\nBye!");
+            // Initialize the board, currentState and currentPlayer
+            initGame();
+
+            // Play the game once
+            do {
+                // currentPlayer makes a move
+                // Update board[selectedRow][selectedCol] and currentState
+                stepGame();
+                // Refresh the display
+                paintBoard();
+                // Print message if game over
+                if (currentState == CROSS_WON) {
+                    System.out.println("'X' won!");
+                } else if (currentState == NOUGHT_WON) {
+                    System.out.println("'O' won!");
+                } else if (currentState == DRAW) {
+                    System.out.println("It's a Draw!");
+                }
+                // Switch currentPlayer
+                currentPlayer = (currentPlayer == CROSS) ? NOUGHT : CROSS;
+            } while (currentState == PLAYING); // repeat if not game over
+            // Prompt the user whether to play again
+            boolean invalid = true;
+            do {
+                System.out.print("Play again (y/n)? ");
+                char ans = in.next().charAt(0);
+                if (ans == 'n' || ans == 'N') {
+                    System.out.println("Bye!");
+                    System.exit(0);  // terminate the program
+                } else if (ans == 'y' || ans == 'Y'){
+                    invalid = false;
+                } else {
+                    System.out.println("Invalid Input");
+                }
+            } while (invalid);
+        } while (true);  // repeat until user did not answer yes
+    }
+
+    /** Initialize the board[][], currentState and currentPlayer for a new game*/
+    public static void initGame() {
+        for (int row = 0; row < ROWS; ++row) {
+            for (int col = 0; col < COLS; ++col) {
+                board[row][col] = NO_SEED;  // all cells empty
             }
-            // Switch currentPlayer
-            currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-        } while (currentState == State.PLAYING);  // repeat until game over
+        }
+        currentPlayer = CROSS;   // cross plays first
+        currentState  = PLAYING; // ready to play
     }
 
-    /** Perform one-time initialization tasks */
-    public void initGame() {
-        board = new Board();  // allocate game-board
-    }
-
-    /** Reset the game-board contents and the current states, ready for new game */
-    public void newGame() {
-        board.newGame();  // clear the board contents
-        currentPlayer = Seed.CROSS;   // CROSS plays first
-        currentState = State.PLAYING; // ready to play
-    }
-
-    /** The currentPlayer makes one move.
-     Update cells[][] and currentState. */
-    public void stepGame() {
-        boolean validInput = false;  // for validating input
+    /** The currentPlayer makes one move (one step).
+     Update board[selectedRow][selectedCol] and currentState. */
+    public static void stepGame() {
+        boolean validInput = false;  // for input validation
         do {
-            String icon = currentPlayer.getIcon();
-            System.out.print("Player '" + icon + "', enter your move (row[1-3] column[1-3]): ");
-            int row = in.nextInt() - 1;   // [0-2]
+            if (currentPlayer == CROSS) {
+                System.out.print("Player 'X', enter your move (row[1-3] column[1-3]): ");
+            } else {
+                System.out.print("Player 'O', enter your move (row[1-3] column[1-3]): ");
+            }
+            int row = in.nextInt() - 1;  // array index starts at 0 instead of 1
             int col = in.nextInt() - 1;
-            if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
-                    && board.cells[row][col].content == Seed.NO_SEED) {
-                // Update cells[][] and return the new game state after the move
-                currentState = board.stepGame(currentPlayer, row, col);
-                validInput = true; // input okay, exit loop
+            if (row >= 0 && row < ROWS && col >= 0 && col < COLS
+                    && board[row][col] == NO_SEED) {
+                // Update board[][] and return the new game state after the move
+                currentState = stepGameUpdate(currentPlayer, row, col);
+                validInput = true;  // input okay, exit loop
             } else {
                 System.out.println("This move at (" + (row + 1) + "," + (col + 1)
                         + ") is not valid. Try again...");
             }
-        } while (!validInput);   // repeat until input is valid
+        } while (!validInput);  // repeat if input is invalid
     }
 
-    /** The entry main() method */
-    public static void main(String[] args) {
-        new GameMain();  // Let the constructor do the job
+    /**
+     * Helper function of stepGame().
+     * The given player makes a move at (selectedRow, selectedCol).
+     * Update board[selectedRow][selectedCol]. Compute and return the
+     * new game state (PLAYING, DRAW, CROSS_WON, NOUGHT_WON).
+     * @return new game state
+     */
+    public static int stepGameUpdate(int player, int selectedRow, int selectedCol) {
+        // Update game board
+        board[selectedRow][selectedCol] = player;
+
+        // Compute and return the new game state
+        if (board[selectedRow][0] == player       // 3-in-the-row
+                && board[selectedRow][1] == player
+                && board[selectedRow][2] == player
+                || board[0][selectedCol] == player // 3-in-the-column
+                && board[1][selectedCol] == player
+                && board[2][selectedCol] == player
+                || selectedRow == selectedCol      // 3-in-the-diagonal
+                && board[0][0] == player
+                && board[1][1] == player
+                && board[2][2] == player
+                || selectedRow + selectedCol == 2  // 3-in-the-opposite-diagonal
+                && board[0][2] == player
+                && board[1][1] == player
+                && board[2][0] == player) {
+            return (player == CROSS) ? CROSS_WON : NOUGHT_WON;
+        } else {
+            // Nobody win. Check for DRAW (all cells occupied) or PLAYING.
+            for (int row = 0; row < ROWS; ++row) {
+                for (int col = 0; col < COLS; ++col) {
+                    if (board[row][col] == NO_SEED) {
+                        return PLAYING; // still have empty cells
+                    }
+                }
+            }
+            return DRAW; // no empty cell, it's a draw
+        }
+    }
+
+    /** Print the game board */
+    public static void paintBoard() {
+        for (int row = 0; row < ROWS; ++row) {
+            for (int col = 0; col < COLS; ++col) {
+                paintCell(board[row][col]); // print each of the cells
+                if (col != COLS - 1) {
+                    System.out.print("|");   // print vertical partition
+                }
+            }
+            System.out.println();
+            if (row != ROWS - 1) {
+                System.out.println("-----------"); // print horizontal partition
+            }
+        }
+        System.out.println();
+    }
+
+    /** Print a cell having the given content */
+    public static void paintCell(int content) {
+        switch (content) {
+            case CROSS:   System.out.print(" X "); break;
+            case NOUGHT:  System.out.print(" O "); break;
+            case NO_SEED: System.out.print("   "); break;
+        }
     }
 }
