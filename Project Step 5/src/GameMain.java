@@ -25,11 +25,14 @@ public class GameMain extends JPanel implements MouseListener{
     private Seed currentPlayer;  // the current player
     private JLabel statusBar;    // for displaying status message
 
-    private boolean isVsAI = true;
+    private JSlider difficultySlider;
+
+    private int difficultyLevel;
 
 
     /** Constructor to setup the UI and game components */
-    public GameMain() {
+    public GameMain(int difficultyLevel) { // <-- CHANGE THE CONSTRUCTOR HERE
+        this.difficultyLevel = difficultyLevel;
 
         // This JPanel fires MouseEvent
         super.addMouseListener(this);
@@ -45,6 +48,7 @@ public class GameMain extends JPanel implements MouseListener{
 
         super.setLayout(new BorderLayout());
         super.add(statusBar, BorderLayout.PAGE_END); // same as SOUTH
+
         super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
         // account for statusBar in height
         super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
@@ -119,7 +123,7 @@ public class GameMain extends JPanel implements MouseListener{
                 }
 
                 // --- AI's Turn (Player 'O') ---
-                if (isVsAI && currentState == State.PLAYING) {
+                if (currentState == State.PLAYING) {
                     // 1. Get the AI's move
                     int[] aiMove = board.findRandomAIMove(); // This calls the new method in Board.java
                     if (aiMove != null) {
@@ -171,7 +175,7 @@ public class GameMain extends JPanel implements MouseListener{
             public void run() {
                 JFrame frame = new JFrame(TITLE);
                 // Set the content-pane of the JFrame to an instance of main JPanel
-                frame.setContentPane(new GameMain());
+                frame.setContentPane(new GameMain(0));
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.pack();
                 frame.setLocationRelativeTo(null); // center the application window

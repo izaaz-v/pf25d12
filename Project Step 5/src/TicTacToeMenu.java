@@ -3,6 +3,8 @@ import java.awt.*;
 
 public class TicTacToeMenu extends JFrame {
 
+    private int currentDifficulty = 0;
+
     // ✅ Inner class harus dideklarasikan sebelum digunakan
     class BackgroundPanel extends JPanel {
         private Image image;
@@ -80,7 +82,7 @@ public class TicTacToeMenu extends JFrame {
                 switch (label) {
                     case "Mulai Rek!":
                         JFrame gameFrame = new JFrame(GameMain.TITLE);
-                        gameFrame.setContentPane(new GameMain());
+                        gameFrame.setContentPane(new GameMain(currentDifficulty));
                         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         gameFrame.pack();
                         gameFrame.setLocationRelativeTo(null);
@@ -90,7 +92,38 @@ public class TicTacToeMenu extends JFrame {
                         JOptionPane.showMessageDialog(this, "Skor belum tersedia.");
                         break;
                     case "Pengaturan":
-                        JOptionPane.showMessageDialog(this, "Fitur pengaturan masih dikembangkan.");
+                        // Create the slider for the dialog
+                        JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 2, currentDifficulty);
+                        slider.setMajorTickSpacing(1);
+                        slider.setPaintTicks(true);
+                        slider.setPaintLabels(true);
+
+                        // Create labels for the slider ticks
+                        java.util.Hashtable<Integer, JLabel> labelTable = new java.util.Hashtable<>();
+                        labelTable.put(0, new JLabel("Easy"));
+                        labelTable.put(1, new JLabel("Medium"));
+                        labelTable.put(2, new JLabel("Hard"));
+                        slider.setLabelTable(labelTable);
+
+                        // Create a panel to hold the slider
+                        JPanel sliderPanel = new JPanel(new BorderLayout());
+                        sliderPanel.add(new JLabel("Pilih Tingkat Kesulitan AI:", SwingConstants.CENTER), BorderLayout.NORTH);
+                        sliderPanel.add(slider, BorderLayout.CENTER);
+
+                        // Show the custom dialog
+                        int result = JOptionPane.showOptionDialog(
+                                this,
+                                sliderPanel,
+                                "Pengaturan Kesulitan",
+                                JOptionPane.OK_CANCEL_OPTION,
+                                JOptionPane.PLAIN_MESSAGE,
+                                null, null, null);
+
+                        // If the user clicked "OK", update the stored difficulty level
+                        if (result == JOptionPane.OK_OPTION) {
+                            currentDifficulty = slider.getValue();
+                            JOptionPane.showMessageDialog(this, "Tingkat kesulitan diatur!");
+                        }
                         break;
                     case "Keluar Rek!":
                         System.exit(0);
