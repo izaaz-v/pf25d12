@@ -8,11 +8,7 @@ import java.util.Locale;
 public class MySqlExample {
     public static void main(String[] args) throws ClassNotFoundException {
         String host, port, databaseName, userName, password;
-        host = "mysql-tictactoe-miniproject12d.f.aivencloud.com";
-                port = "11585";
-                        databaseName = "defaultdb";
-                                userName = "avnadmin";
-                                        password = "AVNS_1H39VWwQfMUUsxexzbn";
+        host = port = databaseName = userName = password = null;
         for (int i = 0; i < args.length - 1; i++) {
             switch (args[i].toLowerCase(Locale.ROOT)) {
                 case "-host": host = args[++i]; break;
@@ -31,11 +27,10 @@ public class MySqlExample {
         try (final Connection connection =
                      DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + databaseName + "?sslmode=require", userName, password);
              final Statement statement = connection.createStatement();
-             final ResultSet resultSet = statement.executeQuery("SELECT * FROM users")) {
+             final ResultSet resultSet = statement.executeQuery("SELECT version() AS version")) {
 
             while (resultSet.next()) {
-                System.out.println("Username: " + resultSet.getString("username"));
-                System.out.println("Password: " + resultSet.getString("password"));
+                System.out.println("Version: " + resultSet.getString("version"));
             }
         } catch (SQLException e) {
             System.out.println("Connection failure.");

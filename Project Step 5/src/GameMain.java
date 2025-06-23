@@ -5,8 +5,11 @@ import javax.swing.*;
  * Tic-Tac-Toe: Two-player Graphic version with better OO design.
  * The Board and Cell classes are separated in their own classes.
  */
-public class GameMain extends JPanel {
+public class GameMain extends JPanel implements MouseListener{
     private static final long serialVersionUID = 1L; // to prevent serializable warning
+
+
+
 
     // Define named constants for the drawing graphics
     public static final String TITLE = "Tic Tac Toe";
@@ -22,40 +25,14 @@ public class GameMain extends JPanel {
     private Seed currentPlayer;  // the current player
     private JLabel statusBar;    // for displaying status message
 
+    private boolean isVsAI = true;
+
+
     /** Constructor to setup the UI and game components */
     public GameMain() {
 
         // This JPanel fires MouseEvent
-        super.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {  // mouse-clicked handler
-                int mouseX = e.getX();
-                int mouseY = e.getY();
-                // Get the row and column clicked
-                int row = mouseY / Cell.SIZE;
-                int col = mouseX / Cell.SIZE;
-
-                if (currentState == State.PLAYING) {
-                    if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
-                            && board.cells[row][col].content == Seed.NO_SEED) {
-                        // Update cells[][] and return the new game state after the move
-                        currentState = board.stepGame(currentPlayer, row, col);
-                        // Switch player
-                        currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-                    }
-                    // Play appropriate sound clip
-                    if (currentState == State.PLAYING) {
-                        SoundEffect.EAT_FOOD.play();
-                    } else {
-                        SoundEffect.DIE.play();
-                    }
-                } else {        // game over
-                    newGame();  // restart the game
-                }
-                // Refresh the drawing canvas
-                repaint();  // Callback paintComponent().
-            }
-        });
+        super.addMouseListener(this);
 
         // Setup the status bar (JLabel) to display status message
         statusBar = new JLabel();
@@ -115,6 +92,76 @@ public class GameMain extends JPanel {
             statusBar.setForeground(Color.RED);
             statusBar.setText("'O' Won! Click to play again.");
         }
+    }
+
+    public void mouseClicked(MouseEvent e) {  // mouse-clicked handler
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+        // Get the row and column clicked
+        int row = mouseY / Cell.SIZE;
+        int col = mouseX / Cell.SIZE;
+
+        if (currentState == State.PLAYING) {
+            // --- Human's Turn (Player 'X') ---
+            if (currentPlayer == Seed.CROSS && row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
+                    && board.cells[row][col].content == Seed.NO_SEED) {
+
+                // Update cells[][] and get the new game state
+                currentState = board.stepGame(currentPlayer, row, col);
+                // Switch player to 'O'
+                currentPlayer = Seed.NOUGHT;
+
+                // Play sound for human's move
+                if (currentState == State.PLAYING) {
+                    SoundEffect.EAT_FOOD.play();
+                } else {
+                    SoundEffect.DIE.play(); // Play end-game sound
+                }
+
+                // --- AI's Turn (Player 'O') ---
+                if (isVsAI && currentState == State.PLAYING) {
+                    // 1. Get the AI's move
+                    int[] aiMove = board.findRandomAIMove(); // This calls the new method in Board.java
+                    if (aiMove != null) {
+                        // 2. Make the AI's move
+                        currentState = board.stepGame(currentPlayer, aiMove[0], aiMove[1]); //
+
+                        // 3. Play sound for AI's move
+                        if (currentState == State.PLAYING) {
+                            SoundEffect.EAT_FOOD.play(); //
+                        } else {
+                            SoundEffect.DIE.play(); //
+                        }
+                    }
+                    // 4. Switch player back to 'X'
+                    currentPlayer = Seed.CROSS;
+                }
+            }
+        } else {        // game is over
+            newGame(); // restart the game
+        }
+        // Refresh the drawing canvas
+        repaint();
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 
     /** The entry "main" method */

@@ -1,4 +1,8 @@
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
+
 /**
  * The Board class models the ROWS-by-COLS game board.
  */
@@ -13,6 +17,27 @@ public class Board {
     public static final int GRID_WIDTH_HALF = GRID_WIDTH / 2; // Grid-line's half-width
     public static final Color COLOR_GRID = Color.LIGHT_GRAY;  // grid lines
     public static final int Y_OFFSET = 1;  // Fine tune for better display
+
+
+    // ... inside your public class Board { ...
+    public int[] findRandomAIMove() {
+        // Get a list of all empty cells
+        List<int[]> emptyCells = new ArrayList<>();
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS; c++) {
+                if (cells[r][c].content == Seed.NO_SEED) {
+                    emptyCells.add(new int[]{r, c});
+                }
+            }
+        }
+
+        // Pick a random one from the list
+        if (!emptyCells.isEmpty()) {
+            Random rand = new Random();
+            return emptyCells.get(rand.nextInt(emptyCells.size()));
+        }
+        return null; // Should not happen in a normal game
+    }
 
     // Define properties (package-visible)
     /** Composes of 2D array of ROWS-by-COLS Cell instances */
